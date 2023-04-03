@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1078460833504",
+    "project_id": "chatmeflutterapp",
+    "storage_bucket": "chatmeflutterapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078460833504:android:2f1bd4429c3eb8cc737a85",
+        "android_client_info": {
+          "package_name": "com.example.chatme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078460833504-sv6a3qv2jgd74rufttfe0569c85re855.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD72SjCBNUlcYYRcC8tyEEMfHRPkFTc6W0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078460833504-sv6a3qv2jgd74rufttfe0569c85re855.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
