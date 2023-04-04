@@ -1,4 +1,5 @@
 import 'package:chatme/helper/helper_function.dart';
+import 'package:chatme/pages/auth/forgot_password.dart';
 import 'package:chatme/pages/auth/register_page.dart';
 import 'package:chatme/pages/home_page.dart';
 import 'package:chatme/service/auth_service.dart';
@@ -97,6 +98,18 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(
                           height: 20,
                         ),
+                        GestureDetector(
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontSize: 14,
+                                color: Colors.black),
+                          ),
+                          onTap: () {
+                            nextScreen(context, const ForgotPassword());
+                          },
+                        ),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -169,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
           });
         }
       });
-    }else{
+    } else {
       print('in else');
     }
   }
