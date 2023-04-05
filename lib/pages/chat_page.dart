@@ -44,6 +44,8 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,17 +68,18 @@ class _ChatPageState extends State<ChatPage> {
               icon: const Icon(Icons.info))
         ],
       ),
-      body: Stack(
-        children: <Widget>[
+      body: Column(
+        children: [
           // chat messages here
           chatMessages(),
           Container(
+            // color: Colors.redAccent.withOpacity(0.5),
             alignment: Alignment.bottomCenter,
             width: MediaQuery.of(context).size.width,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               width: MediaQuery.of(context).size.width,
-              color: Colors.grey[700],
+              color: Colors.grey.withOpacity(0.5),
               child: Row(children: [
                 Expanded(
                     child: TextFormField(
@@ -121,16 +124,27 @@ class _ChatPageState extends State<ChatPage> {
     return StreamBuilder(
       stream: chats,
       builder: (context, AsyncSnapshot snapshot) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController
+                .jumpTo(_scrollController.position.maxScrollExtent);
+          } else {
+            setState(() => null);
+          }
+        });
         return snapshot.hasData
-            ? ListView.builder(
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context, index) {
-                  return MessageTile(
-                      message: snapshot.data.docs[index]['message'],
-                      sender: snapshot.data.docs[index]['sender'],
-                      sentByMe: widget.userName ==
-                          snapshot.data.docs[index]['sender']);
-                },
+            ? Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: snapshot.data.docs.length,
+                  itemBuilder: (context, index) {
+                    return MessageTile(
+                        message: snapshot.data.docs[index]['message'],
+                        sender: snapshot.data.docs[index]['sender'],
+                        sentByMe: widget.userName ==
+                            snapshot.data.docs[index]['sender']);
+                  },
+                ),
               )
             : Container();
       },
