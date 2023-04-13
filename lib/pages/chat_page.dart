@@ -1,7 +1,7 @@
 import 'package:chatme/pages/group_info.dart';
 import 'package:chatme/service/database_service.dart';
-import 'package:chatme/widgets/message_tile.dart';
 import 'package:chatme/widgets/common_widgets.dart';
+import 'package:chatme/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -9,12 +9,9 @@ class ChatPage extends StatefulWidget {
   final String groupId;
   final String groupName;
   final String userName;
-  const ChatPage(
-      {Key? key,
-      required this.groupId,
-      required this.groupName,
-      required this.userName})
-      : super(key: key);
+  final String? token;
+
+  const ChatPage({Key? key, required this.groupId, required this.groupName, required this.userName, this.token}) : super(key: key);
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -126,8 +123,7 @@ class _ChatPageState extends State<ChatPage> {
       builder: (context, AsyncSnapshot snapshot) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController.hasClients) {
-            _scrollController
-                .jumpTo(_scrollController.position.maxScrollExtent);
+            _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
           } else {
             setState(() => null);
           }
@@ -141,8 +137,7 @@ class _ChatPageState extends State<ChatPage> {
                     return MessageTile(
                         message: snapshot.data.docs[index]['message'],
                         sender: snapshot.data.docs[index]['sender'],
-                        sentByMe: widget.userName ==
-                            snapshot.data.docs[index]['sender']);
+                        sentByMe: widget.userName == snapshot.data.docs[index]['sender']);
                   },
                 ),
               )

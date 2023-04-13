@@ -6,8 +6,8 @@ class Constants {
   // static String messagingSenderId = "634480644405";
   // static String projectId = "chatappflutter-13318";
   static String appId = "1:1078460833504:web:d8fb7f6b23178dda737a85";
-static String apiKey = "AIzaSyBcw2RruVPM0e4SBkakRNkURtKtROSklV0";
-static String messagingSenderId = "1078460833504";
-static String projectId = "chatmeflutterapp";
+  static String apiKey = "AIzaSyBcw2RruVPM0e4SBkakRNkURtKtROSklV0";
+  static String messagingSenderId = "1078460833504";
+  static String projectId = "chatmeflutterapp";
   final primaryColor = const Color(0xFFee7b64);
 }
