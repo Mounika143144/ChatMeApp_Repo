@@ -1,7 +1,7 @@
 import 'package:chatme/pages/group_info.dart';
 import 'package:chatme/service/database_service.dart';
-import 'package:chatme/widgets/message_tile.dart';
 import 'package:chatme/widgets/common_widgets.dart';
+import 'package:chatme/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -9,12 +9,9 @@ class ChatPage extends StatefulWidget {
   final String groupId;
   final String groupName;
   final String userName;
-  const ChatPage(
-      {Key? key,
-      required this.groupId,
-      required this.groupName,
-      required this.userName})
-      : super(key: key);
+  final String? token;
+
+  const ChatPage({Key? key, required this.groupId, required this.groupName, required this.userName, this.token}) : super(key: key);
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -44,6 +41,8 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,17 +65,18 @@ class _ChatPageState extends State<ChatPage> {
               icon: const Icon(Icons.info))
         ],
       ),
-      body: Stack(
-        children: <Widget>[
+      body: Column(
+        children: [
           // chat messages here
           chatMessages(),
           Container(
+            // color: Colors.redAccent.withOpacity(0.5),
             alignment: Alignment.bottomCenter,
             width: MediaQuery.of(context).size.width,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               width: MediaQuery.of(context).size.width,
-              color: Colors.grey[700],
+              color: Colors.grey.withOpacity(0.5),
               child: Row(children: [
                 Expanded(
                     child: TextFormField(
@@ -121,16 +121,25 @@ class _ChatPageState extends State<ChatPage> {
     return StreamBuilder(
       stream: chats,
       builder: (context, AsyncSnapshot snapshot) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+          } else {
+            setState(() => null);
+          }
+        });
         return snapshot.hasData
-            ? ListView.builder(
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context, index) {
-                  return MessageTile(
-                      message: snapshot.data.docs[index]['message'],
-                      sender: snapshot.data.docs[index]['sender'],
-                      sentByMe: widget.userName ==
-                          snapshot.data.docs[index]['sender']);
-                },
+            ? Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: snapshot.data.docs.length,
+                  itemBuilder: (context, index) {
+                    return MessageTile(
+                        message: snapshot.data.docs[index]['message'],
+                        sender: snapshot.data.docs[index]['sender'],
+                        sentByMe: widget.userName == snapshot.data.docs[index]['sender']);
+                  },
+                ),
               )
             : Container();
       },

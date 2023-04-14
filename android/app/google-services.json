@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "1078460833504",
+    "firebase_url": "https://chatmeflutterapp-default-rtdb.firebaseio.com",
     "project_id": "chatmeflutterapp",
     "storage_bucket": "chatmeflutterapp.appspot.com"
   },
@@ -14,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "1078460833504-sv6a3qv2jgd74rufttfe0569c85re855.apps.googleusercontent.com",
+          "client_id": "1078460833504-t6kfeoa5kgv1uategr1ls6skgviv4s3r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chatme",
+            "certificate_hash": "2c50bdfdb89de73ac935d7ca56d1763d5caae5a7"
+          }
+        },
+        {
+          "client_id": "1078460833504-2gt6k7g8aagta6isljqjr0l54jvqpe6r.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +36,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1078460833504-sv6a3qv2jgd74rufttfe0569c85re855.apps.googleusercontent.com",
+              "client_id": "1078460833504-2gt6k7g8aagta6isljqjr0l54jvqpe6r.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1078460833504-o6lctkf0erb4j2hkug9romj1cqbqhu8q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatme"
+              }
             }
           ]
         }
