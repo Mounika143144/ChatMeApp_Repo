@@ -1,30 +1,40 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class DatabaseService {
   final String? uid;
+
   DatabaseService({this.uid});
 
   // reference for our collections
-  final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection("users");
-  final CollectionReference groupCollection =
-      FirebaseFirestore.instance.collection("groups");
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection("users");
+  final CollectionReference groupCollection = FirebaseFirestore.instance.collection("groups");
 
   // saving the userdata
   Future savingUserData(String fullName, String email) async {
+    final now = DateTime.now();
+    final String createdAt = '${now.year}-${now.month}-${now.day}';
+
+    final String? token = await FirebaseMessaging.instance.getToken();
+    if (token == null) return false;
+
     return await userCollection.doc(uid).set({
       "fullName": fullName,
       "email": email,
       "groups": [],
       "profilePic": "",
       "uid": uid,
+      "createdAt": createdAt,
+      "platform": Platform.operatingSystem,
+      "token": token,
     });
   }
 
   // getting user data
   Future gettingUserData(String email) async {
-    QuerySnapshot snapshot =
-        await userCollection.where("email", isEqualTo: email).get();
+    QuerySnapshot snapshot = await userCollection.where("email", isEqualTo: email).get();
     return snapshot;
   }
 
@@ -52,18 +62,13 @@ class DatabaseService {
 
     DocumentReference userDocumentReference = userCollection.doc(uid);
     return await userDocumentReference.update({
-      "groups":
-          FieldValue.arrayUnion(["${groupDocumentReference.id}_$groupName"])
+      "groups": FieldValue.arrayUnion(["${groupDocumentReference.id}_$groupName"])
     });
   }
 
   // getting the chats
   getChats(String groupId) async {
-    return groupCollection
-        .doc(groupId)
-        .collection("messages")
-        .orderBy("time")
-        .snapshots();
+    return groupCollection.doc(groupId).collection("messages").orderBy("time").snapshots();
   }
 
   Future getGroupAdmin(String groupId) async {
@@ -83,8 +88,7 @@ class DatabaseService {
   }
 
   // function -> bool
-  Future<bool> isUserJoined(
-      String groupName, String groupId, String userName) async {
+  Future<bool> isUserJoined(String groupName, String groupId, String userName) async {
     DocumentReference userDocumentReference = userCollection.doc(uid);
     DocumentSnapshot documentSnapshot = await userDocumentReference.get();
 
@@ -97,8 +101,7 @@ class DatabaseService {
   }
 
   // toggling the group join/exit
-  Future toggleGroupJoin(
-      String groupId, String userName, String groupName) async {
+  Future toggleGroupJoin(String groupId, String userName, String groupName) async {
     // doc reference
     DocumentReference userDocumentReference = userCollection.doc(uid);
     DocumentReference groupDocumentReference = groupCollection.doc(groupId);

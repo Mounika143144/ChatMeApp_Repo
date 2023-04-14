@@ -6,12 +6,9 @@ class GroupTile extends StatefulWidget {
   final String userName;
   final String groupId;
   final String groupName;
-  const GroupTile(
-      {Key? key,
-      required this.groupId,
-      required this.groupName,
-      required this.userName})
-      : super(key: key);
+  final String token;
+
+  const GroupTile({Key? key, required this.groupId, required this.groupName, required this.userName, required this.token}) : super(key: key);
 
   @override
   State<GroupTile> createState() => _GroupTileState();
@@ -28,6 +25,7 @@ class _GroupTileState extends State<GroupTile> {
               groupId: widget.groupId,
               groupName: widget.groupName,
               userName: widget.userName,
+              token: widget.token,
             ));
       },
       child: Container(
@@ -39,8 +37,7 @@ class _GroupTileState extends State<GroupTile> {
             child: Text(
               widget.groupName.substring(0, 1).toUpperCase(),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
             ),
           ),
           title: Text(
