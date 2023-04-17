@@ -286,6 +286,7 @@ class _HomePageState extends State<HomePage> {
 
   noGroupWidget() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

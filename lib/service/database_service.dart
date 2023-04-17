@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseService {
   final String? uid;
@@ -20,6 +21,13 @@ class DatabaseService {
     final String? token = await FirebaseMessaging.instance.getToken();
     if (token == null) return false;
 
+    final String envPlatform;
+    if (kIsWeb) {
+      envPlatform = 'Web';
+    } else {
+      envPlatform = Platform.operatingSystem;
+    }
+
     return await userCollection.doc(uid).set({
       "fullName": fullName,
       "email": email,
@@ -27,7 +35,7 @@ class DatabaseService {
       "profilePic": "",
       "uid": uid,
       "createdAt": createdAt,
-      "platform": Platform.operatingSystem,
+      "platform": envPlatform,
       "token": token,
     });
   }
