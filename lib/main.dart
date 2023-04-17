@@ -1,10 +1,10 @@
+import 'package:chatme/firebase_options.dart';
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/auth/login_page.dart';
 import 'package:chatme/pages/home_page.dart';
 import 'package:chatme/shared/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -19,18 +19,21 @@ Future<void> _onBackgroundMessage(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (kIsWeb) {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  /*if (kIsWeb) {
     await Firebase.initializeApp(
-        options: FirebaseOptions(apiKey: Constants.apiKey, appId: Constants.appId, messagingSenderId: Constants.messagingSenderId, projectId: Constants.projectId));
+        options: FirebaseOptions(
+            apiKey: Constants.apiKey, appId: Constants.appId, messagingSenderId: Constants.messagingSenderId, projectId: Constants.projectId, authDomain: Constants.authDomain));
   } else {
     await Firebase.initializeApp();
-    /*FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
+    FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: false,
       sound: true,
-    );*/
-  }
+    );
+  }*/
   //await NotificationService.initializeNotification();
   runApp(const MyApp());
 }

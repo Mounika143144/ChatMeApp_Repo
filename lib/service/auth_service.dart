@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:chatme/firebase_options.dart';
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/home_page.dart';
 import 'package:chatme/service/database_service.dart';
@@ -62,10 +63,11 @@ class AuthService {
     }
   }
 
-  static Future<FirebaseApp> initializeFirebase({
-    required BuildContext context,
-  }) async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
+  //Google Auto Login
+  static Future<FirebaseApp> initializeFirebase({required BuildContext context}) async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     User? user = FirebaseAuth.instance.currentUser;
 
