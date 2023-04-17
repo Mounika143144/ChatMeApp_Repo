@@ -5,9 +5,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class NotificationService {
   NotificationService._();
 
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  get foregroundNotify => _notificationDetails();
 
-  static const AndroidNotificationChannel _androidChannel = AndroidNotificationChannel(
+  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  static const AndroidNotificationChannel _androidChannel =
+      AndroidNotificationChannel(
     'high_importance_channel',
     'high_importance_channel',
     description: 'description',
@@ -31,10 +35,13 @@ class NotificationService {
   }
 
   static Future<void> initializeNotification() async {
-    const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const AndroidInitializationSettings androidInitializationSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     await _notificationsPlugin.initialize(
-      const InitializationSettings(android: androidInitializationSettings, iOS: DarwinInitializationSettings()),
+      const InitializationSettings(
+          android: androidInitializationSettings,
+          iOS: DarwinInitializationSettings()),
     );
   }
 
