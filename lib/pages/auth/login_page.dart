@@ -156,10 +156,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   login() async {
-    print(email);
-    print(password);
     if (formKey.currentState!.validate()) {
-      print('in if');
       setState(() {
         _isLoading = true;
       });
@@ -179,8 +176,6 @@ class _LoginPageState extends State<LoginPage> {
           });
         }
       });
-    } else {
-      print('in else');
     }
   }
 }
