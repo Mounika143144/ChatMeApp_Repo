@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:chatme/pages/group_info.dart';
 import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:chatme/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../helper/httpClient.dart';
 
 class ChatPage extends StatefulWidget {
   final String groupId;
@@ -11,7 +15,13 @@ class ChatPage extends StatefulWidget {
   final String userName;
   final String? token;
 
-  const ChatPage({Key? key, required this.groupId, required this.groupName, required this.userName, this.token}) : super(key: key);
+  const ChatPage(
+      {Key? key,
+      required this.groupId,
+      required this.groupName,
+      required this.userName,
+      this.token})
+      : super(key: key);
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -22,8 +32,12 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController messageController = TextEditingController();
   String admin = "";
 
+  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  //     FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
+    // initNotification();
     getChatandAdmin();
     super.initState();
   }
@@ -45,6 +59,9 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    // print(
+    //     "UserName : ${widget.userName} : GroupName : ${widget.groupName} \n Token : ${widget.token} "
+    //     " \n : ${widget.groupId}");
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -123,7 +140,8 @@ class _ChatPageState extends State<ChatPage> {
       builder: (context, AsyncSnapshot snapshot) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController.hasClients) {
-            _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+            _scrollController
+                .jumpTo(_scrollController.position.maxScrollExtent);
           } else {
             setState(() => null);
           }
@@ -137,7 +155,8 @@ class _ChatPageState extends State<ChatPage> {
                     return MessageTile(
                         message: snapshot.data.docs[index]['message'],
                         sender: snapshot.data.docs[index]['sender'],
-                        sentByMe: widget.userName == snapshot.data.docs[index]['sender']);
+                        sentByMe: widget.userName ==
+                            snapshot.data.docs[index]['sender']);
                   },
                 ),
               )
@@ -146,7 +165,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  sendMessage() {
+  sendMessage() async {
     if (messageController.text.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
         "message": messageController.text,
@@ -155,9 +174,81 @@ class _ChatPageState extends State<ChatPage> {
       };
 
       DatabaseService().sendMessage(widget.groupId, chatMessageMap);
+      await sendPushNotificationToMembers(chatMessageMap);
       setState(() {
         messageController.clear();
       });
     }
   }
+
+  Future sendPushNotificationToMembers(chatMessageMap) async {
+    var gp = await FirebaseFirestore.instance
+        .collection('groups')
+        .where('groupId', isEqualTo: widget.groupId)
+        .get();
+
+    CollectionReference query = FirebaseFirestore.instance.collection('users');
+
+    Map gpData = gp.docs.first.data();
+    // print("Group Mem : ${gpData}");
+    List memberList = gpData['members'];
+    String gpAdmin = gpData['admin'];
+
+    memberList.forEach((element) async {
+      String memberId = element.toString().substring(0, 28);
+      String charUserName = element.toString().substring(29);
+
+      var userQuery = await query.where('uid', isEqualTo: memberId).get();
+      var userInfo = userQuery.docs.first.data() as Map;
+      String userToken = userInfo['token'];
+      List userGroups = userInfo['groups'];
+      String uid = userInfo['uid'];
+
+      if (userGroups.contains("${widget.groupId}_${widget.groupName}")) {
+        try {
+          print(
+              'Chat User Name : $charUserName != ${widget.userName} ${widget.userName != charUserName}');
+          if (widget.userName != charUserName) {
+            var resp = await httpClient.pushNotification(
+                fcmToken: userToken,
+                title: widget.groupName,
+                body: "\n${widget.userName}\n${chatMessageMap['message']}");
+
+            if (resp.statusCode == 200) {
+              print("$charUserName - Token : $userToken ");
+              print("Push Notification send Status : ${resp.body}");
+            } else {
+              print("Failed to send Notification");
+            }
+          }
+        } catch (errors) {
+          print("Error : $errors");
+        }
+      }
+    });
+  }
+
+  // void initNotification() async {
+  //   const AndroidNotificationChannel highPriorityChannel =
+  //       AndroidNotificationChannel(
+  //     'chatme', // id
+  //     'Chat Me', // title
+  //     importance: Importance.high,
+  //   );
+
+  //   final AndroidInitializationSettings initializationSettingsAndroid =
+  //       AndroidInitializationSettings('app_icon');
+
+  //   final InitializationSettings initializationSettings =
+  //       InitializationSettings(
+  //     android: initializationSettingsAndroid,
+  //   );
+
+  //   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  //   await flutterLocalNotificationsPlugin
+  //       .resolvePlatformSpecificImplementation<
+  //           AndroidFlutterLocalNotificationsPlugin>()
+  //       ?.createNotificationChannel(highPriorityChannel);
+  // }
 }

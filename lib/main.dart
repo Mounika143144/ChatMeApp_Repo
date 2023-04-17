@@ -14,13 +14,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
 
-  print("Handling a background message: ${message.messageId}");}
-
+  print("Handling a background message: ${message.messageId}");
+}
 
 Future<void> _onBackgroundMessage(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
+
   print('Handling a background message ${message.messageId}');
   debugPrint('we have received a notification ${message.notification}');
 }
@@ -30,41 +30,46 @@ void main() async {
 
   if (kIsWeb) {
     await Firebase.initializeApp(
-        options: FirebaseOptions(apiKey: Constants.apiKey, appId: Constants.appId, messagingSenderId: Constants.messagingSenderId, projectId: Constants.projectId));
+        options: FirebaseOptions(
+            apiKey: Constants.apiKey,
+            appId: Constants.appId,
+            messagingSenderId: Constants.messagingSenderId,
+            projectId: Constants.projectId));
   } else {
     await Firebase.initializeApp();
-    final messaging = FirebaseMessaging.instance;
 
-    final messageSettring = await messaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        provisional: false,
-        criticalAlert: false,
-        sound: true);
-    final token = await messaging.getToken();
+  //   final messaging = FirebaseMessaging.instance;
 
-    print(
-        "Permission Status : ${messageSettring.authorizationStatus} \n FCM Token : $token ");
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
-            alert: true, badge: true, sound: true);
-    if (messageSettring.authorizationStatus == AuthorizationStatus.authorized) {
-      FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
-      await messaging.setAutoInitEnabled(true);
+  //   final messageSettring = await messaging.requestPermission(
+  //       alert: true,
+  //       announcement: false,
+  //       badge: true,
+  //       carPlay: false,
+  //       provisional: false,
+  //       criticalAlert: false,
+  //       sound: true);
+  //   final token = await messaging.getToken();
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print('Got a message whilst in the foreground!');
-        print('Message data: ${message.data}');
+  //   print(
+  //       "Permission Status : ${messageSettring.authorizationStatus} \n FCM Token : $token ");
+  //   await FirebaseMessaging.instance
+  //       .setForegroundNotificationPresentationOptions(
+  //           alert: true, badge: true, sound: true);
+  //   if (messageSettring.authorizationStatus == AuthorizationStatus.authorized) {
+  //     FirebaseMessaging.onBackgroundMessage(
+  //         _firebaseMessagingBackgroundHandler);
+  //     await messaging.setAutoInitEnabled(true);
 
-        if (message.notification != null) {
-          print(
-              'Message also contained a notification: ${message.notification}');
-        }
-      });
-    }
+  //     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //       print('Got a message whilst in the foreground!');
+  //       print('Message data: ${message.data}');
+
+  //       if (message.notification != null) {
+  //         print(
+  //             'Message also contained a notification: ${message.notification}');
+  //       }
+  //     });
+  //   }
   }
   //await NotificationService.initializeNotification();
   runApp(const MyApp());
@@ -80,13 +85,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _isSignedIn = false;
 
-  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  //     FlutterLocalNotificationsPlugin();
-
   @override
   void initState() {
     super.initState();
-    // initNotification();
     getUserLoggedInStatus();
   }
 
@@ -104,35 +105,12 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return OverlaySupport(
       child: MaterialApp(
-        theme: ThemeData(primaryColor: Constants().primaryColor, scaffoldBackgroundColor: Colors.white),
+        theme: ThemeData(
+            primaryColor: Constants().primaryColor,
+            scaffoldBackgroundColor: Colors.white),
         debugShowCheckedModeBanner: false,
         home: _isSignedIn ? const HomePage() : const LoginPage(),
       ),
     );
   }
-
-  // void initNotification() async {
-  //   const AndroidNotificationChannel highPriorityChannel =
-  //       AndroidNotificationChannel(
-  //     'high_priority_channel', // id
-  //     'High Priority Channel', // title
-  //     'This channel is for high priority notifications', // description
-  //     importance: Importance.high,
-  //   );
-
-  //   final AndroidInitializationSettings initializationSettingsAndroid =
-  //       AndroidInitializationSettings('app_icon');
-
-  //   final InitializationSettings initializationSettings =
-  //       InitializationSettings(
-  //     android: initializationSettingsAndroid,
-  //   );
-
-  //   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-  //   await flutterLocalNotificationsPlugin
-  //       .resolvePlatformSpecificImplementation<
-  //           AndroidFlutterLocalNotificationsPlugin>()
-  //       ?.createNotificationChannel(highPriorityChannel);
-  // }
 }
