@@ -1,12 +1,19 @@
+<<<<<<< HEAD
 import 'package:chatme/helper/globalNotification.dart';
+=======
+import 'package:chatme/firebase_options.dart';
+>>>>>>> 6c39d3c9793d9f0303bcdf013453085934e51f3a
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/auth/login_page.dart';
 import 'package:chatme/pages/home_page.dart';
 import 'package:chatme/shared/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+<<<<<<< HEAD
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+=======
+>>>>>>> 6c39d3c9793d9f0303bcdf013453085934e51f3a
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -29,9 +36,12 @@ Future<void> _onBackgroundMessage(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (kIsWeb) {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  /*if (kIsWeb) {
     await Firebase.initializeApp(
         options: FirebaseOptions(
+<<<<<<< HEAD
             apiKey: Constants.apiKey,
             appId: Constants.appId,
             messagingSenderId: Constants.messagingSenderId,
@@ -43,6 +53,18 @@ void main() async {
 
   }
 
+=======
+            apiKey: Constants.apiKey, appId: Constants.appId, messagingSenderId: Constants.messagingSenderId, projectId: Constants.projectId, authDomain: Constants.authDomain));
+  } else {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: false,
+      sound: true,
+    );
+  }*/
+>>>>>>> 6c39d3c9793d9f0303bcdf013453085934e51f3a
   //await NotificationService.initializeNotification();
 
   runApp(const MyApp());

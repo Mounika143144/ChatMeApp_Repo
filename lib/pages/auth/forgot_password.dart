@@ -21,26 +21,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     super.dispose();
   }
 
-  void showSnackBar(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: Colors.blue),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          appBar: AppBar(backgroundColor: Theme.of(context).primaryColor,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).primaryColor,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
@@ -90,34 +76,29 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               color: Colors.black,
                             ),
                             border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.black, width: 0.1),
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(15),
-                                    bottomRight: Radius.circular(15))),
+                                borderSide: BorderSide(color: Colors.black, width: 0.1),
+                                borderRadius: BorderRadius.only(topLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                   color: Color.fromARGB(255, 58, 107, 58),
                                 ),
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(15),
-                                    bottomRight: Radius.circular(15))),
+                                borderRadius: BorderRadius.only(topLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
                           ),
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.normal),
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
                         ),
                       ),
-                      const SizedBox(height: 15,),
+                      const SizedBox(
+                        height: 15,
+                      ),
                       ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor),
+                          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
                               try {
                                 ResetPassword(emailController.text);
-                                showSnackBar('Email sent successfully');
+                                showSnackbar(context, Colors.green, 'Email sent successfully');
                               } on FirebaseAuthException catch (e) {
-                                showSnackBar(e.message.toString());
+                                showSnackbar(context, Colors.red, e.message.toString());
                               }
                             }
                           },
