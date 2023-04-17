@@ -1,3 +1,4 @@
+import 'package:chatme/helper/globalNotification.dart';
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/auth/login_page.dart';
 import 'package:chatme/pages/home_page.dart';
@@ -37,41 +38,13 @@ void main() async {
             projectId: Constants.projectId));
   } else {
     await Firebase.initializeApp();
+    await GlobalNotificatioSetup().registerNotification();
 
-  //   final messaging = FirebaseMessaging.instance;
 
-  //   final messageSettring = await messaging.requestPermission(
-  //       alert: true,
-  //       announcement: false,
-  //       badge: true,
-  //       carPlay: false,
-  //       provisional: false,
-  //       criticalAlert: false,
-  //       sound: true);
-  //   final token = await messaging.getToken();
-
-  //   print(
-  //       "Permission Status : ${messageSettring.authorizationStatus} \n FCM Token : $token ");
-  //   await FirebaseMessaging.instance
-  //       .setForegroundNotificationPresentationOptions(
-  //           alert: true, badge: true, sound: true);
-  //   if (messageSettring.authorizationStatus == AuthorizationStatus.authorized) {
-  //     FirebaseMessaging.onBackgroundMessage(
-  //         _firebaseMessagingBackgroundHandler);
-  //     await messaging.setAutoInitEnabled(true);
-
-  //     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //       print('Got a message whilst in the foreground!');
-  //       print('Message data: ${message.data}');
-
-  //       if (message.notification != null) {
-  //         print(
-  //             'Message also contained a notification: ${message.notification}');
-  //       }
-  //     });
-  //   }
   }
+
   //await NotificationService.initializeNotification();
+
   runApp(const MyApp());
 }
 

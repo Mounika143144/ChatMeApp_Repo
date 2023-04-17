@@ -30,9 +30,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     gettingUserData();
 
-    FirebaseMessaging.instance.getToken().then((token) {
-      print('FCM Token: $token');
-    });
+    // FirebaseMessaging.instance.getToken().then((token) {
+    //   print('FCM Token: $token');
+    // });
   }
 
   // string manipulation
