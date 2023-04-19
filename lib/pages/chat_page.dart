@@ -143,7 +143,7 @@ class _ChatPageState extends State<ChatPage> {
             _scrollController
                 .jumpTo(_scrollController.position.maxScrollExtent);
           } else {
-            setState(() => null);
+            setState(() => {});
           }
         });
         return snapshot.hasData

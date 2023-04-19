@@ -18,12 +18,14 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  //define a variable to start using firebasecloud messaging
   late final FirebaseMessaging _messaging;
   late int _totalNotifications;
   PushNotification? _notificationInfo;
 
   void registerNotification() async {
     await Firebase.initializeApp();
+    //instantiating firebase messaging
     _messaging = FirebaseMessaging.instance;
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -61,7 +63,7 @@ class _NotificationPageState extends State<NotificationPage> {
             leading: NotificationBadge(totalNotifications: _totalNotifications),
             subtitle: Text(_notificationInfo!.body!),
             background: Colors.cyan.shade700,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           );
         }
       });
@@ -118,13 +120,13 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notify'),
+        title: const Text('Notify'),
         brightness: Brightness.dark,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
+          const Text(
             'App for capturing Firebase Push Notifications',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -132,24 +134,24 @@ class _NotificationPageState extends State<NotificationPage> {
               fontSize: 20,
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           NotificationBadge(totalNotifications: _totalNotifications),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           _notificationInfo != null
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'TITLE: ${_notificationInfo!.dataTitle ?? _notificationInfo!.title}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
                     ),
-                    SizedBox(height: 8.0),
+                    const SizedBox(height: 8.0),
                     Text(
                       'BODY: ${_notificationInfo!.dataBody ?? _notificationInfo!.body}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
