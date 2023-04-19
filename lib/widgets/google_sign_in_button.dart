@@ -39,8 +39,14 @@ class GoogleSignInButtonState extends State<GoogleSignInButton> {
                 setState(() {
                   _isSigningIn = true;
                 });
-                User? user = await AuthService.signInWithGoogle(context: context);
-                await DatabaseService(uid: user!.uid).savingUserData(user.displayName!, user.email!);
+                User? user =
+                    await AuthService.signInWithGoogle(context: context);
+                QuerySnapshot snapshot = await DatabaseService(uid: user!.uid)
+                    .gettingUserData(user.email!);
+                if (snapshot.docs.isEmpty) {
+                  await DatabaseService(uid: user.uid)
+                      .savingUserData(user.displayName!, user.email!);
+                }
                 // saving the values to our shared preferences
                 await HelperFunctions.saveUserLoggedInStatus(true);
                 await HelperFunctions.saveUserEmailSF(user.email!);
