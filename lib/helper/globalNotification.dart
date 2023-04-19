@@ -8,7 +8,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 final _messaging = FirebaseMessaging.instance;
 final globalFCMToken = _messaging.getToken();
 
-class GlobalNotificatioSetup {
+class GlobalNotificationSetup {
   Future registerNotification() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -22,12 +22,10 @@ class GlobalNotificatioSetup {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted permission');
 
-      FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
       await _messaging.setAutoInitEnabled(true);
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print(
-            'Message title: ${message.notification?.title}, body: ${message.notification?.body}, data: ${message.data}');
+        print('Message title: ${message.notification?.title}, body: ${message.notification?.body}, data: ${message.data}');
       });
     } else {
       print('User declined or has not accepted permission');
