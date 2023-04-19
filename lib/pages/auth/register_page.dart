@@ -3,6 +3,7 @@ import 'package:chatme/pages/auth/login_page.dart';
 import 'package:chatme/pages/home_page.dart';
 import 'package:chatme/service/auth_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -167,6 +168,8 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         _isLoading = true;
       });
+      final messaging = FirebaseMessaging.instance;
+
       await authService
           .registerUserWithEmailandPassword(fullName, email, password)
           .then((value) async {

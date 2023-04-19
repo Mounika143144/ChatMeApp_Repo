@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:chatme/helper/globalNotification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseService {
   final String? uid;
+
   DatabaseService({this.uid});
 
   // reference for our collections
@@ -11,13 +17,32 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("groups");
 
   // saving the userdata
-  Future savingUserData(String fullName, String email) async {
+  Future savingUserData(
+    String fullName,
+    String email,
+  ) async {
+    final now = DateTime.now();
+    final String createdAt = '${now.year}-${now.month}-${now.day}';
+
+    final String? token = await globalFCMToken;
+    if (token == null) return false;
+
+    final String envPlatform;
+    if (kIsWeb) {
+      envPlatform = 'Web';
+    } else {
+      envPlatform = Platform.operatingSystem;
+    }
+
     return await userCollection.doc(uid).set({
       "fullName": fullName,
       "email": email,
       "groups": [],
       "profilePic": "",
       "uid": uid,
+      "createdAt": createdAt,
+      "platform": envPlatform,
+      "token": token,
     });
   }
 

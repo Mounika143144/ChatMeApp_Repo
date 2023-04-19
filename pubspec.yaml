@@ -32,9 +32,20 @@ dependencies:
   cupertino_icons: ^1.0.5
   firebase_auth: ^4.3.0
   firebase_core: ^2.8.0
+  firebase_messaging: ^14.4.0
   flutter:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.0
+  flutter_local_notifications: ^13.0.0
+  google_sign_in: ^6.1.0
+  http: ^0.13.5
+  overlay_support: ^2.1.0
   shared_preferences: ^2.0.20
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/chatme.png"
 
 dev_dependencies:
   flutter_test:
