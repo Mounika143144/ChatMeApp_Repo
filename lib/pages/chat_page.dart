@@ -7,13 +7,20 @@ import 'package:flutter/material.dart';
 
 import '../helper/httpClient.dart';
 
+
 class ChatPage extends StatefulWidget {
   final String groupId;
   final String groupName;
   final String userName;
   final String? token;
 
-  const ChatPage({Key? key, required this.groupId, required this.groupName, required this.userName, this.token}) : super(key: key);
+  const ChatPage(
+      {Key? key,
+      required this.groupId,
+      required this.groupName,
+      required this.userName,
+      this.token})
+      : super(key: key);
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -22,12 +29,23 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   Stream<QuerySnapshot>? chats;
   TextEditingController messageController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   String admin = "";
+  String searchQuery = '';
+  late bool _isSearching = false;
+  String _searchText = "";
+  bool clear = false;
+
+  QuerySnapshot<Map<String, dynamic>>? searchresult;
+
+  Widget? appBarTitle;
 
   @override
   void initState() {
     getChatandAdmin();
+    initialization();
     super.initState();
+    _isSearching = false;
   }
 
   getChatandAdmin() {
@@ -47,16 +65,36 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    // print(
-    //     "UserName : ${widget.userName} : GroupName : ${widget.groupName} \n Token : ${widget.token} "
-    //     " \n : ${widget.groupId}");
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
-        title: Text(widget.groupName),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: _isSearching
+              ? () {
+                  _isSearching = false;
+                  _controller.clear();
+                  setState(() {});
+                }
+              : () {
+                  Navigator.of(context).pop();
+                },
+        ),
+        title: !_isSearching ? appBarTitle : searchField(),
         backgroundColor: Theme.of(context).primaryColor,
         actions: [
+          IconButton(
+            icon: !_isSearching
+                ? const Icon(Icons.search)
+                : const SizedBox(
+                    height: 0,
+                  ),
+            onPressed: () {
+              _isSearching = true;
+              setState(() {});
+            },
+          ),
           IconButton(
               onPressed: () {
                 nextScreen(
@@ -67,13 +105,14 @@ class _ChatPageState extends State<ChatPage> {
                       adminName: admin,
                     ));
               },
-              icon: const Icon(Icons.info))
+              icon: const Icon(Icons.info)),
         ],
       ),
       body: Column(
         children: [
           // chat messages here
           chatMessages(),
+
           Container(
             // color: Colors.redAccent.withOpacity(0.5),
             alignment: Alignment.bottomCenter,
@@ -122,13 +161,23 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // void searchOperation(String searchText) async {
+  //   searchresult = await FirebaseFirestore.instance
+  //       .collection('groups')
+  //       .doc(widget.groupId)
+  //       .collection('messages')
+  //       .where('message', isEqualTo: searchText)
+  //       .get();
+  // }
+
   chatMessages() {
     return StreamBuilder(
       stream: chats,
       builder: (context, AsyncSnapshot snapshot) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController.hasClients) {
-            _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+            _scrollController
+                .jumpTo(_scrollController.position.maxScrollExtent);
           } else {
             setState(() => {});
           }
@@ -142,7 +191,11 @@ class _ChatPageState extends State<ChatPage> {
                     return MessageTile(
                         message: snapshot.data.docs[index]['message'],
                         sender: snapshot.data.docs[index]['sender'],
-                        sentByMe: widget.userName == snapshot.data.docs[index]['sender']);
+                        sentByMe: widget.userName ==
+                            snapshot.data.docs[index]['sender'],
+                            searchTextCtrl: _controller.text,
+                            
+                            );
                   },
                 ),
               )
@@ -168,7 +221,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future sendPushNotificationToMembers(chatMessageMap) async {
-    var gp = await FirebaseFirestore.instance.collection('groups').where('groupId', isEqualTo: widget.groupId).get();
+    var gp = await FirebaseFirestore.instance
+        .collection('groups')
+        .where('groupId', isEqualTo: widget.groupId)
+        .get();
 
     CollectionReference query = FirebaseFirestore.instance.collection('users');
 
@@ -189,9 +245,13 @@ class _ChatPageState extends State<ChatPage> {
 
       if (userGroups.contains("${widget.groupId}_${widget.groupName}")) {
         try {
-          print('Chat User Name : $chatUserName != ${widget.userName} ${widget.userName != chatUserName}');
+          print(
+              'Chat User Name : $chatUserName != ${widget.userName} ${widget.userName != chatUserName}');
           if (widget.userName != chatUserName) {
-            var resp = await httpClient.pushNotification(fcmToken: userToken, title: widget.groupName, body: "\n${widget.userName}\n${chatMessageMap['message']}");
+            var resp = await httpClient.pushNotification(
+                fcmToken: userToken,
+                title: widget.groupName,
+                body: "\n${widget.userName}\n${chatMessageMap['message']}");
 
             if (resp.statusCode == 200) {
               print("$chatUserName - Token : $userToken ");
@@ -206,4 +266,51 @@ class _ChatPageState extends State<ChatPage> {
       }
     });
   }
+
+  void initialization() async {
+    _controller.addListener(() {
+      clear = _controller.text.length > 0;
+      setState(() {});
+    });
+    searchresult = await FirebaseFirestore.instance
+        .collection('groups')
+        .doc(widget.groupId)
+        .collection('messages')
+        .get();
+
+    appBarTitle = Text(
+      widget.groupName,
+      style: const TextStyle(color: Colors.white),
+    );
+
+    setState(() {});
+  }
+
+  Widget searchField() => TextField(
+        controller: _controller,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+        decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search, color: Colors.white),
+            hintText: "Search...",
+            hintStyle: const TextStyle(color: Colors.white),
+            suffixIcon: clear
+                ? IconButton(
+                    onPressed: () => _controller.clear(),
+                    icon: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                      child: const Icon(
+                        Icons.cancel,
+                        color: Colors.red,
+                      ),
+                    ))
+                : const SizedBox(
+                    height: 0,
+                  )),
+        // onChanged: searchOperation,
+      );
 }
