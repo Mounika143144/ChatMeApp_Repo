@@ -37,7 +37,7 @@ dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.13.0
   flutter_local_notifications: ^13.0.0
-  fuzzy: ^0.3.0
+ 
   google_sign_in: ^6.1.0
   http: ^0.13.5
   overlay_support: ^2.1.0
