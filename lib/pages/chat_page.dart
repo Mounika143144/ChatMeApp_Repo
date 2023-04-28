@@ -70,7 +70,7 @@ class _ChatPageState extends State<ChatPage> {
         centerTitle: true,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: _isSearching
               ? () {
                   _isSearching = false;
@@ -286,31 +286,33 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
   }
 
-  Widget searchField() => TextField(
-        controller: _controller,
-        style: const TextStyle(
-          color: Colors.white,
+  Widget searchField() => SizedBox(width: 800,
+    child: TextField(
+          controller: _controller,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+          decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search, color: Colors.white),
+              hintText: "Search...",
+              hintStyle: const TextStyle(color: Colors.white),
+              suffixIcon: clear
+                  ? IconButton(
+                      onPressed: () => _controller.clear(),
+                      icon: Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                        child:  Icon(
+                          Icons.cancel,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ))
+                  : const SizedBox(
+                      height: 0,
+                    )),
+          // onChanged: searchOperation,
         ),
-        decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search, color: Colors.white),
-            hintText: "Search...",
-            hintStyle: const TextStyle(color: Colors.white),
-            suffixIcon: clear
-                ? IconButton(
-                    onPressed: () => _controller.clear(),
-                    icon: Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                      child: const Icon(
-                        Icons.cancel,
-                        color: Colors.red,
-                      ),
-                    ))
-                : const SizedBox(
-                    height: 0,
-                  )),
-        // onChanged: searchOperation,
-      );
+  );
 }
