@@ -35,14 +35,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             ),
           ),
           body: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 110, 0, 0),
-              child: Form(
-                  key: formKey,
+            child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Padding(
-                        padding: EdgeInsets.all(50.0),
+                        padding: EdgeInsets.all(40.0),
                         child: Text(
                           'Receive an Email to Reset your Password',
                           style: TextStyle(
@@ -53,7 +53,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(5.0),
                         child: TextFormField(
                           autovalidateMode: autovalidate,
                           validator: (mail) {
@@ -104,8 +104,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           },
                           child: const Text('Send Email'))
                     ],
-                  )),
-            ),
+                  ),
+                )),
           )),
     );
   }
