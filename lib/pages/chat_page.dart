@@ -4,9 +4,9 @@ import 'package:chatme/widgets/common_widgets.dart';
 import 'package:chatme/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../helper/httpClient.dart';
-
 
 class ChatPage extends StatefulWidget {
   final String groupId;
@@ -40,6 +40,11 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget? appBarTitle;
 
+  List chatHistory = [];
+
+  List matechedList = [];
+  int currentIndex = 0;
+
   @override
   void initState() {
     getChatandAdmin();
@@ -61,10 +66,11 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  final ScrollController _scrollController = ScrollController();
+  final scrollController = AutoScrollController();
 
   @override
   Widget build(BuildContext context) {
+    final node = FocusManager.instance.primaryFocus;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -84,28 +90,72 @@ class _ChatPageState extends State<ChatPage> {
         title: !_isSearching ? appBarTitle : searchField(),
         backgroundColor: Theme.of(context).primaryColor,
         actions: [
-          IconButton(
-            icon: !_isSearching
-                ? const Icon(Icons.search)
-                : const SizedBox(
-                    height: 0,
-                  ),
-            onPressed: () {
-              _isSearching = true;
-              setState(() {});
-            },
-          ),
-          IconButton(
+          if (!_isSearching)
+            IconButton(
+              icon: const Icon(Icons.search),
               onPressed: () {
-                nextScreen(
-                    context,
-                    GroupInfo(
-                      groupId: widget.groupId,
-                      groupName: widget.groupName,
-                      adminName: admin,
-                    ));
+                _isSearching = true;
+                setState(() {});
               },
-              icon: const Icon(Icons.info)),
+            ),
+          if (_isSearching && _controller.text.isNotEmpty)
+            Row(
+              children: [
+                // Top Arrow Icon with Scroll Logic
+                IconButton(
+                    onPressed: () async {
+                      node!.unfocus();
+
+                      if (currentIndex >= 0 &&
+                          currentIndex < matechedList.length) {
+                        await scrollToIndexValue(matechedList[currentIndex]);
+                        print(
+                            "Chat History1 $matechedList : ${matechedList[currentIndex]}");
+                      }
+
+                      if (matechedList.length >= 0 &&
+                          currentIndex < matechedList.length) {
+                        print(
+                            "Chat History2 $matechedList : ${matechedList[currentIndex]}");
+                        currentIndex++;
+                      }
+                      setState(() {});
+                      print("CCCCCCCCCCCCCC : $currentIndex");
+                    },
+                    icon: Icon(Icons.keyboard_arrow_down_sharp)),
+
+                // Down Arrow Icon with Scroll Logic
+                IconButton(
+                    onPressed: () async {
+                      node!.unfocus();
+                      print("cuuuurent minus : $currentIndex");
+
+                      if (currentIndex != 0 &&
+                          currentIndex <= matechedList.length) {
+                        currentIndex--;
+
+                        await scrollToIndexValue(matechedList[currentIndex]);
+                        print(
+                            "Chat History4 $matechedList index $currentIndex : ${matechedList[currentIndex]}");
+                      }
+
+                      setState(() {});
+                    },
+                    icon: Icon(Icons.keyboard_arrow_up_sharp)),
+              ],
+            ),
+          if (!_isSearching)
+            IconButton(
+                onPressed: () {
+                  nextScreen(
+                      context,
+                      GroupInfo(
+                        groupId: widget.groupId,
+                        groupName: widget.groupName,
+                        adminName: admin,
+                      ));
+                },
+                icon: const Icon(Icons.info)),
         ],
       ),
       body: Column(
@@ -158,6 +208,28 @@ class _ChatPageState extends State<ChatPage> {
           )
         ],
       ),
+      floatingActionButton: _controller.text.length > 0
+          ? Transform.translate(
+              offset: const Offset(0, -80),
+              child: Container(
+                height: 20,
+                width: 60,
+                decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.5),
+                    borderRadius: const BorderRadius.all(Radius.circular(50))),
+                child: Center(
+                  child: Text("$currentIndex of ${matechedList.length}",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15)),
+                ),
+              ),
+            )
+          : const SizedBox(
+              height: 0,
+            ),
     );
   }
 
@@ -175,33 +247,55 @@ class _ChatPageState extends State<ChatPage> {
       stream: chats,
       builder: (context, AsyncSnapshot snapshot) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_scrollController.hasClients) {
-            _scrollController
-                .jumpTo(_scrollController.position.maxScrollExtent);
+          if (scrollController.hasClients) {
+            _controller.text.isEmpty
+                ? scrollController.animateTo(
+                    scrollController.position.maxScrollExtent,
+                    duration: Duration(milliseconds: 400),
+                    curve: Curves.easeInOut)
+                : null;
           } else {
             setState(() => {});
           }
         });
+
+        if (snapshot.hasData) {
+          chatHistory = snapshot.data.docs.map((e) => e['message']).toList();
+          chatHistory.forEach((element) {});
+        }
+
         return snapshot.hasData
             ? Expanded(
                 child: ListView.builder(
-                  controller: _scrollController,
+                  controller: scrollController,
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context, index) {
-                    return MessageTile(
+                    return AutoScrollTag(
+                      key: ValueKey(index),
+                      controller: scrollController,
+                      index: index,
+                      child: MessageTile(
                         message: snapshot.data.docs[index]['message'],
                         sender: snapshot.data.docs[index]['sender'],
                         sentByMe: widget.userName ==
                             snapshot.data.docs[index]['sender'],
-                            searchTextCtrl: _controller.text,
-                            
-                            );
+                        searchTextCtrl: _controller.text,
+                        scrollerCtrl: scrollController,
+                        chatMsgHistory: chatHistory,
+                        index: index,
+                      ),
+                    );
                   },
                 ),
               )
             : Container();
       },
     );
+  }
+
+  Future<void> scrollToIndexValue(int index) async {
+    await scrollController.scrollToIndex(index,
+        preferPosition: AutoScrollPosition.begin);
   }
 
   sendMessage() async {
@@ -286,9 +380,29 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
   }
 
-  Widget searchField() => SizedBox(width: 800,
-    child: TextField(
+  Widget searchField() => SizedBox(
+        width: 800,
+        child: TextField(
           controller: _controller,
+          onChanged: (val) {
+            currentIndex = 0;
+            if (matechedList.length > 0) matechedList.length = 0;
+            RegExp regexSearchText = RegExp(val, caseSensitive: false);
+            int i = 0;
+            for (final item in chatHistory) {
+              if (regexSearchText.hasMatch(item)) {
+                matechedList.add(i);
+              }
+
+              i++;
+            }
+
+            if (matechedList.length > 0) {
+              scrollToIndexValue(matechedList[0]);
+            }
+            setState(() {});
+          },
+
           style: const TextStyle(
             color: Colors.white,
           ),
@@ -304,7 +418,7 @@ class _ChatPageState extends State<ChatPage> {
                           shape: BoxShape.circle,
                           color: Colors.white,
                         ),
-                        child:  Icon(
+                        child: Icon(
                           Icons.cancel,
                           color: Theme.of(context).primaryColor,
                         ),
@@ -314,5 +428,5 @@ class _ChatPageState extends State<ChatPage> {
                     )),
           // onChanged: searchOperation,
         ),
-  );
+      );
 }
