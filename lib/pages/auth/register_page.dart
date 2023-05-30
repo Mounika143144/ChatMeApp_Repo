@@ -48,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             "Create your account now to chat and explore",
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.w400)),
-                        Image.asset("assets/register.png"),
+                        Image.asset("assets/register2.jpg"),
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Full Name",

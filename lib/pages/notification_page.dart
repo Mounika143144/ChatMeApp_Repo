@@ -121,7 +121,7 @@ class _NotificationPageState extends State<NotificationPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notify'),
-        brightness: Brightness.dark,
+       // brightness: Brightness.dark,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

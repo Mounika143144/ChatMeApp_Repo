@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/auth/forgot_password.dart';
 import 'package:chatme/pages/auth/register_page.dart';
@@ -8,9 +10,12 @@ import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:chatme/widgets/google_sign_in_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -25,13 +30,53 @@ class _LoginPageState extends State<LoginPage> {
   String password = "";
   bool _isLoading = false;
   AuthService authService = AuthService();
+  late StreamSubscription subscription;
+  var isDeviceConnected = false;
+  bool isAlertSet = false;
+  StreamSubscription<ConnectivityResult>? subscription1;
+  bool isConnected = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getConnectivity();
+    subscription1 = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {});
+  }
+
+  getConnectivity() => subscription = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) async {
+        isDeviceConnected = await InternetConnectionChecker().hasConnection;
+        if (!isDeviceConnected && isAlertSet == false) {
+          showDialogBox();
+          setState(() => isAlertSet = true);
+        }
+      });
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
+  }
+
+  Future<bool> checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isLoading
           ? Center(
-              child: CircularProgressIndicator(color: Theme.of(context).primaryColor),
+              child: CircularProgressIndicator(
+                  color: Theme.of(context).primaryColor),
             )
           : SingleChildScrollView(
               child: Padding(
@@ -42,10 +87,14 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        const Text("ChatMe", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+                        const Text("ChatMe",
+                            style: TextStyle(
+                                fontSize: 40, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 10),
-                        const Text("Login now to see what they are talking!", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400)),
-                        Image.asset("assets/login.png"),
+                        const Text("Login now to see what they are talking!",
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w400)),
+                        Image.asset("assets/login2.jpg"),
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Email",
@@ -60,7 +109,11 @@ class _LoginPageState extends State<LoginPage> {
                           },
                           // check tha validation
                           validator: (val) {
-                            return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val!) ? null : "Please enter a valid email";
+                            return RegExp(
+                                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                    .hasMatch(val!)
+                                ? null
+                                : "Please enter a valid email";
                           },
                         ),
                         const SizedBox(height: 15),
@@ -94,7 +147,10 @@ class _LoginPageState extends State<LoginPage> {
                               child: GestureDetector(
                                 child: const Text(
                                   'Forgot Password?',
-                                  style: TextStyle(decoration: TextDecoration.underline, fontSize: 14, color: Colors.black),
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 14,
+                                      color: Colors.black),
                                 ),
                                 onTap: () {
                                   nextScreen(context, const ForgotPassword());
@@ -108,10 +164,14 @@ class _LoginPageState extends State<LoginPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                primary: Theme.of(context).primaryColor, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                                primary: Theme.of(context).primaryColor,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30))),
                             child: const Text(
                               "Sign In",
-                              style: TextStyle(color: Colors.white, fontSize: 16),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
                             ),
                             onPressed: () {
                               login();
@@ -120,11 +180,13 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 10),
                         FutureBuilder(
-                          future: AuthService.initializeFirebase(context: context),
+                          future:
+                              AuthService.initializeFirebase(context: context),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return const Text('Error initializing Firebase');
-                            } else if (snapshot.connectionState == ConnectionState.done) {
+                            } else if (snapshot.connectionState ==
+                                ConnectionState.done) {
                               return const GoogleSignInButton();
                             }
                             return const CircularProgressIndicator(
@@ -137,11 +199,14 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 10),
                         Text.rich(TextSpan(
                           text: "Don't have an account? ",
-                          style: const TextStyle(color: Colors.black, fontSize: 14),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 14),
                           children: <TextSpan>[
                             TextSpan(
                                 text: "Register here",
-                                style: const TextStyle(color: Colors.black, decoration: TextDecoration.underline),
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    decoration: TextDecoration.underline),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     nextScreen(context, const RegisterPage());
@@ -160,22 +225,58 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = true;
       });
-      await authService.loginWithUserNameandPassword(email, password).then((value) async {
-        if (value == true) {
-          print(value);
-          QuerySnapshot snapshot = await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid).gettingUserData(email);
-          // saving the values to our shared preferences
-          await HelperFunctions.saveUserLoggedInStatus(true);
-          await HelperFunctions.saveUserEmailSF(email);
-          await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
-          nextScreenReplace(context, const HomePage());
+      await authService
+          .loginWithUserNameandPassword(email, password)
+          .then((value) async {
+        isConnected = await checkInternetConnection();
+        if (isConnected) {
+          if (value == true) {
+            print(value);
+            QuerySnapshot snapshot = await DatabaseService(
+                    uid: FirebaseAuth.instance.currentUser!.uid)
+                .gettingUserData(email);
+            // saving the values to our shared preferences
+            await HelperFunctions.saveUserLoggedInStatus(true);
+            await HelperFunctions.saveUserEmailSF(email);
+            await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
+            nextScreenReplace(context, const HomePage());
+          } else {
+            showSnackbar(context, Colors.red, value);
+            setState(() {
+              _isLoading = false;
+            });
+          }
         } else {
-          showSnackbar(context, Colors.red, value);
-          setState(() {
-            _isLoading = false;
-          });
+          const snackBar = SnackBar(
+            content: Text('No internet connection'),
+            backgroundColor: Colors.red,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       });
     }
+  }
+
+  void showDialogBox() {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('No Connection'),
+        content: const Text('Please check internet connectivity'),
+        actions: [
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(context, 'Cancel');
+                isDeviceConnected =
+                    await InternetConnectionChecker().hasConnection;
+                if (!isDeviceConnected) {
+                  showDialogBox();
+                  setState(() => isAlertSet = true);
+                }
+              },
+              child: const Text('Ok'))
+        ],
+      ),
+    );
   }
 }

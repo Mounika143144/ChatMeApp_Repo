@@ -3,10 +3,10 @@ import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:chatme/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 import '../helper/httpClient.dart';
-
 
 class ChatPage extends StatefulWidget {
   final String groupId;
@@ -39,6 +39,16 @@ class _ChatPageState extends State<ChatPage> {
   QuerySnapshot<Map<String, dynamic>>? searchresult;
 
   Widget? appBarTitle;
+
+  bool isConnected = true;
+  Future<bool> checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   @override
   void initState() {
@@ -189,13 +199,12 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context, index) {
                     return MessageTile(
-                        message: snapshot.data.docs[index]['message'],
-                        sender: snapshot.data.docs[index]['sender'],
-                        sentByMe: widget.userName ==
-                            snapshot.data.docs[index]['sender'],
-                            searchTextCtrl: _controller.text,
-                            
-                            );
+                      message: snapshot.data.docs[index]['message'],
+                      sender: snapshot.data.docs[index]['sender'],
+                      sentByMe: widget.userName ==
+                          snapshot.data.docs[index]['sender'],
+                      searchTextCtrl: _controller.text,
+                    );
                   },
                 ),
               )
@@ -205,6 +214,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   sendMessage() async {
+     isConnected = await checkInternetConnection();
+       if (isConnected) {
     if (messageController.text.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
         "message": messageController.text,
@@ -217,6 +228,14 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         messageController.clear();
       });
+    }
+  }
+  else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -286,8 +305,9 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
   }
 
-  Widget searchField() => SizedBox(width: 800,
-    child: TextField(
+  Widget searchField() => SizedBox(
+        width: 800,
+        child: TextField(
           controller: _controller,
           style: const TextStyle(
             color: Colors.white,
@@ -304,7 +324,7 @@ class _ChatPageState extends State<ChatPage> {
                           shape: BoxShape.circle,
                           color: Colors.white,
                         ),
-                        child:  Icon(
+                        child: Icon(
                           Icons.cancel,
                           color: Theme.of(context).primaryColor,
                         ),
@@ -314,5 +334,5 @@ class _ChatPageState extends State<ChatPage> {
                     )),
           // onChanged: searchOperation,
         ),
-  );
+      );
 }
