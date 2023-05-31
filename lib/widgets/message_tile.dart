@@ -82,7 +82,8 @@ class _MessageTileState extends State<MessageTile> {
     RegExp? regexSearchText = RegExp(searchText!);
     List<TextSpan> textSpan = [];
     int lastEnd = 0;
-    if (regexSearchText == null || regexSearchText.pattern.isEmpty) {
+    // ignore: unrelated_type_equality_checks
+    if (regexSearchText == {} || regexSearchText.pattern.isEmpty) {
       return [
         TextSpan(
             text: text,

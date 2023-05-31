@@ -4,6 +4,7 @@ import 'package:chatme/service/auth_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class ProfilePage extends StatefulWidget {
   String userName;
   String email;

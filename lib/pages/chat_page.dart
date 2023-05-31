@@ -33,7 +33,6 @@ class _ChatPageState extends State<ChatPage> {
   String admin = "";
   String searchQuery = '';
   late bool _isSearching = false;
-  String _searchText = "";
   bool clear = false;
 
   QuerySnapshot<Map<String, dynamic>>? searchresult;
@@ -250,7 +249,6 @@ class _ChatPageState extends State<ChatPage> {
     Map gpData = gp.docs.first.data();
     // print("Group Mem : ${gpData}");
     List memberList = gpData['members'];
-    String gpAdmin = gpData['admin'];
 
     memberList.forEach((element) async {
       String memberId = element.toString().substring(0, 28);
@@ -260,7 +258,6 @@ class _ChatPageState extends State<ChatPage> {
       var userInfo = userQuery.docs.first.data() as Map;
       String userToken = userInfo['token'];
       List userGroups = userInfo['groups'];
-      String uid = userInfo['uid'];
 
       if (userGroups.contains("${widget.groupId}_${widget.groupName}")) {
         try {

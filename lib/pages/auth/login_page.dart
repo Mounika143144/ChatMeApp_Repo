@@ -95,6 +95,9 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.w400)),
                         Image.asset("assets/login2.jpg"),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Email",
@@ -221,15 +224,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   login() async {
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      await authService
-          .loginWithUserNameandPassword(email, password)
-          .then((value) async {
-        isConnected = await checkInternetConnection();
-        if (isConnected) {
+    isConnected = await checkInternetConnection();
+    if (isConnected) {
+      if (formKey.currentState!.validate()) {
+        setState(() {
+          _isLoading = true;
+        });
+        await authService
+            .loginWithUserNameandPassword(email, password)
+            .then((value) async {
           if (value == true) {
             print(value);
             QuerySnapshot snapshot = await DatabaseService(
@@ -246,14 +249,14 @@ class _LoginPageState extends State<LoginPage> {
               _isLoading = false;
             });
           }
-        } else {
-          const snackBar = SnackBar(
-            content: Text('No internet connection'),
-            backgroundColor: Colors.red,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        }
-      });
+        });
+      }
+    } else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
