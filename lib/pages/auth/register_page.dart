@@ -2,6 +2,7 @@ import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/auth/login_page.dart';
 import 'package:chatme/pages/home_page.dart';
 import 'package:chatme/service/auth_service.dart';
+import 'package:chatme/service/check_internet_connectivity.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
@@ -21,6 +22,8 @@ class _RegisterPageState extends State<RegisterPage> {
   String password = "";
   String fullName = "";
   AuthService authService = AuthService();
+  bool isConnected = true;
+  CheckInternetConnectivity c = CheckInternetConnectivity();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,28 +167,38 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   register() async {
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      final messaging = FirebaseMessaging.instance;
+    isConnected = await c.checkInternetConnection();
+    if (isConnected) {
+      if (formKey.currentState!.validate()) {
+        setState(() {
+          _isLoading = true;
+        });
+        final messaging = FirebaseMessaging.instance;
 
-      await authService
-          .registerUserWithEmailandPassword(fullName, email, password)
-          .then((value) async {
-        if (value == true) {
-          // saving the shared preference state
-          await HelperFunctions.saveUserLoggedInStatus(true);
-          await HelperFunctions.saveUserEmailSF(email);
-          await HelperFunctions.saveUserNameSF(fullName);
-          nextScreenReplace(context, const HomePage());
-        } else {
-          showSnackbar(context, Colors.red, value);
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      });
+        await authService
+            .registerUserWithEmailandPassword(fullName, email, password)
+            .then((value) async {
+          if (value == true) {
+            // saving the shared preference state
+            await HelperFunctions.saveUserLoggedInStatus(true);
+            await HelperFunctions.saveUserEmailSF(email);
+            await HelperFunctions.saveUserNameSF(fullName);
+            nextScreenReplace(context, const HomePage());
+          } else {
+            showSnackbar(context, Colors.red, value);
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        });
+      }
+    }
+    else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 }

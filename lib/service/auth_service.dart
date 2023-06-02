@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:chatme/firebase_options.dart';
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/home_page.dart';
+import 'package:chatme/service/check_internet_connectivity.dart';
 import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -43,18 +44,31 @@ class AuthService {
   }
 
   // Sign out of App
-  Future<void> signOut({required BuildContext context}) async {
+
+ bool isConnected = true;
+  CheckInternetConnectivity c = CheckInternetConnectivity();
+
+   Future<void> signOut({required BuildContext context}) async {
+    isConnected = await c.checkInternetConnection();
     final GoogleSignIn googleSignIn = GoogleSignIn();
-    try {
-      await HelperFunctions.saveUserLoggedInStatus(false);
-      await HelperFunctions.saveUserEmailSF("");
-      await HelperFunctions.saveUserNameSF("");
-      if (!kIsWeb) {
-        await googleSignIn.signOut();
+    if (isConnected) {
+      try {
+        await HelperFunctions.saveUserLoggedInStatus(false);
+        await HelperFunctions.saveUserEmailSF("");
+        await HelperFunctions.saveUserNameSF("");
+        if (!kIsWeb) {
+          await googleSignIn.signOut();
+        }
+        await firebaseAuth.signOut();
+      } catch (e) {
+        showSnackbar(context, Colors.red, 'Error signing out. Try again.');
       }
-      await firebaseAuth.signOut();
-    } catch (e) {
-      showSnackbar(context, Colors.red, 'Error signing out. Try again.');
+    } else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 

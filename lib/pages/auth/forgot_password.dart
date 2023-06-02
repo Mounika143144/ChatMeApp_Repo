@@ -1,4 +1,5 @@
 import 'package:chatme/pages/auth/login_page.dart';
+import 'package:chatme/service/check_internet_connectivity.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   final formKey = GlobalKey<FormState>();
   AutovalidateMode autovalidate = AutovalidateMode.disabled;
   final emailController = TextEditingController();
+  bool isConnected = true;
+  CheckInternetConnectivity c = CheckInternetConnectivity();
 
   @override
   void dispose() {
@@ -76,30 +79,49 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               color: Colors.black,
                             ),
                             border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.black, width: 0.1),
-                                borderRadius: BorderRadius.only(topLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
+                                borderSide:
+                                    BorderSide(color: Colors.black, width: 0.1),
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    bottomRight: Radius.circular(15))),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                   color: Color.fromARGB(255, 58, 107, 58),
                                 ),
-                                borderRadius: BorderRadius.only(topLeft: Radius.circular(15), bottomRight: Radius.circular(15))),
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    bottomRight: Radius.circular(15))),
                           ),
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.normal),
                         ),
                       ),
                       const SizedBox(
                         height: 15,
                       ),
                       ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              try {
-                                ResetPassword(emailController.text);
-                                showSnackbar(context, Colors.green, 'Email sent successfully');
-                              } on FirebaseAuthException catch (e) {
-                                showSnackbar(context, Colors.red, e.message.toString());
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor),
+                          onPressed: () async {
+                            isConnected = await c.checkInternetConnection();
+                            if (isConnected) {
+                              if (formKey.currentState!.validate()) {
+                                try {
+                                  ResetPassword(emailController.text);
+                                  showSnackbar(context, Colors.green,
+                                      'Email sent successfully');
+                                } on FirebaseAuthException catch (e) {
+                                  showSnackbar(context, Colors.red,
+                                      e.message.toString());
+                                }
                               }
+                            } else {
+                              const snackBar = SnackBar(
+                                content: Text('No internet connection'),
+                                backgroundColor: Colors.red,
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                             }
                           },
                           child: const Text('Send Email'))
