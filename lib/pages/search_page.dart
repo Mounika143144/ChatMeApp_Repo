@@ -3,6 +3,7 @@ import 'package:chatme/pages/chat_page.dart';
 import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,15 @@ class _SearchPageState extends State<SearchPage> {
   String userName = "";
   bool isJoined = false;
   User? user;
+  bool isConnected = true;
+  Future<bool> checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   @override
   void initState() {
@@ -106,6 +116,8 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   initiateSearchMethod() async {
+    isConnected = await checkInternetConnection();
+ if (isConnected) {
     if (searchController.text.isNotEmpty) {
       setState(() {
         isLoading = true;
@@ -119,6 +131,14 @@ class _SearchPageState extends State<SearchPage> {
           hasUserSearched = true;
         });
       });
+    }
+  }
+  else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -169,13 +189,16 @@ class _SearchPageState extends State<SearchPage> {
       subtitle: Text("Admin: ${getName(admin)}"),
       trailing: InkWell(
         onTap: () async {
+           isConnected = await checkInternetConnection();
+             if (isConnected) {
           await DatabaseService(uid: user!.uid)
               .toggleGroupJoin(groupId, userName, groupName);
+             
           if (isJoined) {
             setState(() {
               isJoined = !isJoined;
             });
-            showSnackbar(context, Colors.green, "Successfully joined he group");
+            showSnackbar(context, Colors.green, "Successfully joined into the group");
             Future.delayed(const Duration(seconds: 2), () {
               nextScreen(
                   context,
@@ -190,6 +213,14 @@ class _SearchPageState extends State<SearchPage> {
               showSnackbar(context, Colors.red, "Left the group $groupName");
             });
           }
+        }
+        else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
         },
         child: isJoined
             ? Container(
