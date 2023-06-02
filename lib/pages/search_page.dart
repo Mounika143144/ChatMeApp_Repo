@@ -21,6 +21,7 @@ class _SearchPageState extends State<SearchPage> {
   String userName = "";
   bool isJoined = false;
   User? user;
+  
 
   @override
   void initState() {

@@ -1,4 +1,5 @@
 import 'package:chatme/pages/home_page.dart';
+import 'package:chatme/service/check_internet_connectivity.dart';
 import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,6 +22,8 @@ class GroupInfo extends StatefulWidget {
 
 class _GroupInfoState extends State<GroupInfo> {
   Stream? members;
+  bool isConnected = true;
+  CheckInternetConnectivity c = CheckInternetConnectivity();
   @override
   void initState() {
     getMembers();
@@ -76,16 +79,26 @@ class _GroupInfoState extends State<GroupInfo> {
                           ),
                           IconButton(
                             onPressed: () async {
-                              DatabaseService(
-                                      uid: FirebaseAuth
-                                          .instance.currentUser!.uid)
-                                  .toggleGroupJoin(
-                                      widget.groupId,
-                                      getName(widget.adminName),
-                                      widget.groupName)
-                                  .whenComplete(() {
-                                nextScreenReplace(context, const HomePage());
-                              });
+                              isConnected = await c.checkInternetConnection();
+                              if (isConnected) {
+                                DatabaseService(
+                                        uid: FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                    .toggleGroupJoin(
+                                        widget.groupId,
+                                        getName(widget.adminName),
+                                        widget.groupName)
+                                    .whenComplete(() {
+                                  nextScreenReplace(context, const HomePage());
+                                });
+                              } else {
+                                const snackBar = SnackBar(
+                                  content: Text('No internet connection'),
+                                  backgroundColor: Colors.red,
+                                );
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
+                              }
                             },
                             icon: const Icon(
                               Icons.done,

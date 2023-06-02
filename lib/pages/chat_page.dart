@@ -1,4 +1,5 @@
 import 'package:chatme/pages/group_info.dart';
+import 'package:chatme/service/check_internet_connectivity.dart';
 import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:chatme/widgets/message_tile.dart';
@@ -33,7 +34,6 @@ class _ChatPageState extends State<ChatPage> {
   String admin = "";
   String searchQuery = '';
   late bool _isSearching = false;
-  String _searchText = "";
   bool clear = false;
 
   QuerySnapshot<Map<String, dynamic>>? searchresult;
@@ -44,6 +44,9 @@ class _ChatPageState extends State<ChatPage> {
 
   List matechedList = [];
   int currentIndex = 0;
+
+   bool isConnected = true;
+  CheckInternetConnectivity c = CheckInternetConnectivity();
 
   @override
   void initState() {
@@ -298,7 +301,9 @@ class _ChatPageState extends State<ChatPage> {
         preferPosition: AutoScrollPosition.begin);
   }
 
-  sendMessage() async {
+   sendMessage() async {
+     isConnected = await c.checkInternetConnection();
+       if (isConnected) {
     if (messageController.text.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
         "message": messageController.text,
@@ -311,6 +316,14 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         messageController.clear();
       });
+    }
+  }
+  else {
+      const snackBar = SnackBar(
+        content: Text('No internet connection'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 

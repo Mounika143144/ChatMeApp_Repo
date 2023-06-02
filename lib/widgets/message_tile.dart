@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:search_highlight_text/search_highlight_text.dart';
 
 class MessageTile extends StatefulWidget {
   final String message;
@@ -110,7 +109,7 @@ class _MessageTileState extends State<MessageTile> {
     List<TextSpan> textSpan = [];
     int lastEnd = 0;
 
-    if (regexSearchText == null || regexSearchText.pattern.isEmpty) {
+    if (regexSearchText == {} || regexSearchText.pattern.isEmpty) {
       return [
         TextSpan(
             text: text,
