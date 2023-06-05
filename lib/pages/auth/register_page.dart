@@ -41,17 +41,29 @@ class _RegisterPageState extends State<RegisterPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        const Text(
-                          "ChatMe",
-                          style: TextStyle(
-                              fontSize: 40, fontWeight: FontWeight.bold),
+                        Image.asset(
+                          "assets/chatme.png",
+                          height: 60,
+                          width: 100,
                         ),
+                        // const Text(
+                        //   "ChatMe",
+                        //   style: TextStyle(
+                        //       fontSize: 40, fontWeight: FontWeight.bold),
+                        // ),
                         const SizedBox(height: 10),
                         const Text(
                             "Create your account now to chat and explore",
                             style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w400)),
-                        Image.asset("assets/register.png"),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: 'Pacifico',
+                                color: Colors.green)),
+                        Image.asset(
+                          "assets/register1.jpg",
+                          height: 280,
+                          width: 280,
+                        ),
                         TextFormField(
                           decoration: textInputDecoration.copyWith(
                               labelText: "Full Name",
@@ -143,22 +155,49 @@ class _RegisterPageState extends State<RegisterPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Text.rich(TextSpan(
-                          text: "Already have an account? ",
-                          style: const TextStyle(
-                              color: Colors.black, fontSize: 14),
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: "Login now",
-                                style: const TextStyle(
-                                    color: Colors.black,
-                                    decoration: TextDecoration.underline),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    nextScreen(context, const LoginPage());
-                                  }),
-                          ],
-                        )),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'Already have an account?',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const WidgetSpan(child: SizedBox(width: 10)),
+                              TextSpan(
+                                  text: 'Login now',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    decoration: TextDecoration.underline,
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      nextScreen(context, const LoginPage());
+                                    }),
+                            ],
+                          ),
+                        ),
+                        // Text.rich(TextSpan(
+                        //   text: "Already have an account? ",
+                        //   style: const TextStyle(
+                        //       color: Colors.black, fontSize: 14),
+                        //   children: <TextSpan>[
+                        //     TextSpan(
+                        //         text: "Login now",
+                        //         style: const TextStyle(
+                        //             color: Colors.black,
+                        //             decoration: TextDecoration.underline),
+                        //         recognizer: TapGestureRecognizer()
+                        //           ..onTap = () {
+                        //             nextScreen(context, const LoginPage());
+                        //           }),
+                        //   ],
+                        // )),
                       ],
                     )),
               ),
@@ -184,6 +223,8 @@ class _RegisterPageState extends State<RegisterPage> {
             await HelperFunctions.saveUserEmailSF(email);
             await HelperFunctions.saveUserNameSF(fullName);
             nextScreenReplace(context, const HomePage());
+            showSnackbar(context, Colors.green,
+                "Your account has been successfully registered");
           } else {
             showSnackbar(context, Colors.red, value);
             setState(() {
@@ -192,8 +233,7 @@ class _RegisterPageState extends State<RegisterPage> {
           }
         });
       }
-    }
-    else {
+    } else {
       const snackBar = SnackBar(
         content: Text('No internet connection'),
         backgroundColor: Colors.red,

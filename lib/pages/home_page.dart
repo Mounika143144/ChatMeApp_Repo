@@ -163,6 +163,8 @@ class _HomePageState extends State<HomePage> {
                                 MaterialPageRoute(
                                     builder: (context) => const LoginPage()),
                                 (route) => false);
+                                 showSnackbar(
+                          context, Colors.green, "Successfully Logged Out");
                           },
                           icon: const Icon(
                             Icons.done,

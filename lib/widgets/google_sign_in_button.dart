@@ -5,6 +5,7 @@ import 'package:chatme/res/fire_assets.dart';
 import 'package:chatme/service/auth_service.dart';
 import 'package:chatme/service/check_internet_connectivity.dart';
 import 'package:chatme/service/database_service.dart';
+import 'package:chatme/widgets/common_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class GoogleSignInButton extends StatefulWidget {
 
 class GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
-   bool isConnected = true;
+  bool isConnected = true;
   CheckInternetConnectivity c = CheckInternetConnectivity();
 
   @override
@@ -63,11 +64,9 @@ class GoogleSignInButtonState extends State<GoogleSignInButton> {
 
                   // ignore: unnecessary_null_comparison
                   if (user != null) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const HomePage(),
-                      ),
-                    );
+                    nextScreenReplace(context, const HomePage());
+                     showSnackbar(
+                          context, Colors.green, "Successfully Logged In");
                   }
                 } else {
                   const snackBar = SnackBar(
@@ -85,14 +84,14 @@ class GoogleSignInButtonState extends State<GoogleSignInButton> {
                   children: [
                     Image(
                       image: AssetImage(FireAssets.googleLogo),
-                      height: 24.0,
+                      height: 20.0,
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 10),
                       child: Text(
                         'Sign in with Google',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           color: Colors.black54,
                           fontWeight: FontWeight.w600,
                         ),
