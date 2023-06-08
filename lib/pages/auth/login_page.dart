@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:chatme/helper/helper_function.dart';
 import 'package:chatme/pages/auth/forgot_password.dart';
@@ -11,12 +10,9 @@ import 'package:chatme/service/database_service.dart';
 import 'package:chatme/widgets/common_widgets.dart';
 import 'package:chatme/widgets/google_sign_in_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -31,37 +27,11 @@ class _LoginPageState extends State<LoginPage> {
   String password = "";
   bool _isLoading = false;
   AuthService authService = AuthService();
-  late StreamSubscription subscription;
-  var isDeviceConnected = false;
-  bool isAlertSet = false;
-  StreamSubscription<ConnectivityResult>? subscription1;
+ 
   bool isConnected = true;
   CheckInternetConnectivity c = CheckInternetConnectivity();
 
-  @override
-  void initState() {
-    super.initState();
-    getConnectivity();
-    subscription1 = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) {});
-  }
-
-  getConnectivity() => subscription = Connectivity()
-          .onConnectivityChanged
-          .listen((ConnectivityResult result) async {
-        isDeviceConnected = await InternetConnectionChecker().hasConnection;
-        if (!isDeviceConnected && isAlertSet == false) {
-          showDialogBox();
-          setState(() => isAlertSet = true);
-        }
-      });
-
-  @override
-  void dispose() {
-    subscription.cancel();
-    super.dispose();
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -297,26 +267,5 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void showDialogBox() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) => CupertinoAlertDialog(
-        title: const Text('No Connection'),
-        content: const Text('Please check internet connectivity'),
-        actions: [
-          TextButton(
-              onPressed: () async {
-                Navigator.pop(context, 'Cancel');
-                isDeviceConnected =
-                    await InternetConnectionChecker().hasConnection;
-                if (!isDeviceConnected) {
-                  showDialogBox();
-                  setState(() => isAlertSet = true);
-                }
-              },
-              child: const Text('Ok'))
-        ],
-      ),
-    );
-  }
+ 
 }
