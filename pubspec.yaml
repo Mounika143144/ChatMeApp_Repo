@@ -41,7 +41,7 @@ dependencies:
  
   google_sign_in: ^6.1.0
   http: ^0.13.5
-  internet_connection_checker: ^1.0.0+1
+  
   overlay_support: ^2.1.0
   scroll_to_index: ^3.0.1
   search_highlight_text: ^1.0.0+2
