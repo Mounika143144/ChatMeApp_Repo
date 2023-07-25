@@ -1,25 +1,13 @@
 import UIKit
-import UserNotifications
+import Flutter
 
 @UIApplicationMain
-class AppDelegate: UIResponder {
-  var window: UIWindow?
-}
-
-extension AppDelegate: UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions:
-                        [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    UNUserNotificationCenter.current().requestAuthorization(options: [
-      .badge, .sound, .alert
-    ]) { granted, _ in
-      guard granted else { return }
-
-      DispatchQueue.main.async {
-        application.registerForRemoteNotifications()
-      }
-    }
-
-    return true
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
